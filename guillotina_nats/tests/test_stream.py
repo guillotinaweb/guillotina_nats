@@ -1,9 +1,8 @@
-import asyncio
-
-import pytest
 from guillotina.component import get_utility
-
 from guillotina_nats.interfaces import INatsUtility
+
+import asyncio
+import pytest
 
 
 @pytest.mark.asyncio

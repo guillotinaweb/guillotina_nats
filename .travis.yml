@@ -16,7 +16,6 @@ matrix:
 services:
   - postgresql
   - docker
-  - redis-server
 before_script:
   - psql -c 'create database guillotina;' -U postgres
 
@@ -28,7 +27,6 @@ install:
   - pip install -r requirements-test.txt
 script:
   - flake8 guillotina_pgfield --config=setup.cfg
-  - mypy guillotina_nats/
   - isort -c -rc guillotina_nats/
   - black --check --verbose guillotina_nats
   - pytest -rfE --reruns 2 --cov=guillotina_nats -s --tb=native -v --cov-report term-missing --cov-append guillotina_nats

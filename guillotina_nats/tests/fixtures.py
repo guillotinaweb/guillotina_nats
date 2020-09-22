@@ -1,12 +1,15 @@
 from guillotina import testing
-from guillotina_nats.tests.utils import Gnatsd, start_gnatsd
-from guillotina_nats.tests.utils import StanServer, start_nats_streaming
+from guillotina_nats.tests.utils import Gnatsd
+from guillotina_nats.tests.utils import StanServer
+from guillotina_nats.tests.utils import start_gnatsd
+from guillotina_nats.tests.utils import start_nats_streaming
+from io import BytesIO
+from urllib.request import urlopen
+from zipfile import ZipFile
+
+import os
 import platform
 import pytest
-import os
-from io import BytesIO
-from zipfile import ZipFile
-from urllib.request import urlopen
 
 
 def base_settings_configurator(settings):
@@ -68,7 +71,9 @@ def stand():
         resp = urlopen(url)
         zipfile = ZipFile(BytesIO(resp.read()))
 
-        file = zipfile.open(f"nats-streaming-server-{version}-{system}-{arch}/nats-streaming-server")
+        file = zipfile.open(
+            f"nats-streaming-server-{version}-{system}-{arch}/nats-streaming-server"
+        )
         content = file.read()
         with open("nats-streaming-server", "wb") as f:
             f.write(content)

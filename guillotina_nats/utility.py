@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
+from nats.aio.client import Client as NATS
+from nats.aio.errors import ErrConnectionClosed
+from nats.aio.errors import ErrConnectionReconnecting
+from nats.aio.errors import ErrNoServers
+from nats.aio.errors import ErrTimeout
+from stan.aio.client import Client as STAN
+from stan.aio.errors import StanError
+
 import asyncio
 import logging
 import os
 import uuid
-
-from nats.aio.client import Client as NATS
-from nats.aio.errors import (
-    ErrConnectionClosed,
-    ErrConnectionReconnecting,
-    ErrNoServers,
-    ErrTimeout,
-)
-from stan.aio.client import Client as STAN
-from stan.aio.errors import StanError
 
 logger = logging.getLogger("guillotina_nats")
 
