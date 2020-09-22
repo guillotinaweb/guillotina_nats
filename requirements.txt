@@ -1,0 +1,3 @@
+guillotina>=6.0.2
+asyncio-nats-client==0.10.0
+asyncio-nats-streaming==0.4.0

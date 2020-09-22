@@ -1,0 +1,9 @@
+nats-server
+nats-streaming-server
+.python-version
+*.pyc
+*.egg-info
+.eggs
+.vscode
+.pytest_cache
+__pycache__
