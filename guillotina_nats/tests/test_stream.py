@@ -1,11 +1,15 @@
-from guillotina_nats.interfaces import INatsUtility
-from guillotina.component import get_utility
 import asyncio
+
 import pytest
+from guillotina.component import get_utility
+
+from guillotina_nats.interfaces import INatsUtility
 
 
 @pytest.mark.asyncio
-@pytest.mark.app_settings({"load_utilities": {"nats": {"settings": {"stan": "test-cluster"}}}})
+@pytest.mark.app_settings(
+    {"load_utilities": {"nats": {"settings": {"stan": "test-cluster"}}}}
+)
 async def test_stream(stand, container_requester):
     async with container_requester as requester:  # noqa
         nats = get_utility(INatsUtility)

@@ -1,10 +1,10 @@
+import http.client
+import json
 import os
-import time
+import random
 import signal
 import subprocess
-import http.client
-import random
-import json
+import time
 
 
 class Gnatsd(object):
@@ -89,7 +89,9 @@ class Gnatsd(object):
         if self.debug:
             self.proc = subprocess.Popen(cmd)
         else:
-            self.proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.proc = subprocess.Popen(
+                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
 
         if self.debug:
             if self.proc is None:
@@ -98,16 +100,25 @@ class Gnatsd(object):
                     % self.port
                 )
             else:
-                print("[\033[0;33mDEBUG\033[0;0m] Server listening on port %d started." % self.port)
+                print(
+                    "[\033[0;33mDEBUG\033[0;0m] Server listening on port %d started."
+                    % self.port
+                )
         return self.proc
 
     def stop(self):
         if self.debug:
-            print("[\033[0;33mDEBUG\033[0;0m] Server listening on %d will stop." % self.port)
+            print(
+                "[\033[0;33mDEBUG\033[0;0m] Server listening on %d will stop."
+                % self.port
+            )
 
         if self.debug:
             if self.proc is None:
-                print("[\033[0;31mDEBUG\033[0;0m] Failed terminating server listening on port %d" % self.port)
+                print(
+                    "[\033[0;31mDEBUG\033[0;0m] Failed terminating server listening on port %d"
+                    % self.port
+                )
 
         if self.proc.returncode is not None:
             if self.debug:
@@ -120,7 +131,10 @@ class Gnatsd(object):
             os.kill(self.proc.pid, signal.SIGKILL)
             self.proc.wait()
             if self.debug:
-                print("[\033[0;33mDEBUG\033[0;0m] Server listening on %d was stopped." % self.port)
+                print(
+                    "[\033[0;33mDEBUG\033[0;0m] Server listening on %d was stopped."
+                    % self.port
+                )
 
 
 class NatsServer(Gnatsd):
@@ -215,7 +229,9 @@ class StanServer(object):
         if self.debug:
             self.proc = subprocess.Popen(cmd)
         else:
-            self.proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            self.proc = subprocess.Popen(
+                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
 
         if self.debug:
             if self.proc is None:
@@ -224,16 +240,25 @@ class StanServer(object):
                     % self.port
                 )
             else:
-                print("[\033[0;33mDEBUG\033[0;0m] Server listening on port %d started." % self.port)
+                print(
+                    "[\033[0;33mDEBUG\033[0;0m] Server listening on port %d started."
+                    % self.port
+                )
         return self.proc
 
     def stop(self):
         if self.debug:
-            print("[\033[0;33mDEBUG\033[0;0m] Server listening on %d will stop." % self.port)
+            print(
+                "[\033[0;33mDEBUG\033[0;0m] Server listening on %d will stop."
+                % self.port
+            )
 
         if self.debug:
             if self.proc is None:
-                print("[\033[0;31mDEBUG\033[0;0m] Failed terminating server listening on port %d" % self.port)
+                print(
+                    "[\033[0;31mDEBUG\033[0;0m] Failed terminating server listening on port %d"
+                    % self.port
+                )
 
         if self.proc.returncode is not None:
             if self.debug:
@@ -246,7 +271,10 @@ class StanServer(object):
             os.kill(self.proc.pid, signal.SIGKILL)
             self.proc.wait()
             if self.debug:
-                print("[\033[0;33mDEBUG\033[0;0m] Server listening on %d was stopped." % self.port)
+                print(
+                    "[\033[0;33mDEBUG\033[0;0m] Server listening on %d was stopped."
+                    % self.port
+                )
 
 
 def start_nats_streaming(server: StanServer):

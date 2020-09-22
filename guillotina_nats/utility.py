@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
-from nats.aio.client import Client as NATS
-from stan.aio.client import Client as STAN
-from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers, ErrConnectionReconnecting
-from stan.aio.errors import StanError
-import uuid
-import os
-import logging
 import asyncio
+import logging
+import os
+import uuid
 
+from nats.aio.client import Client as NATS
+from nats.aio.errors import (
+    ErrConnectionClosed,
+    ErrConnectionReconnecting,
+    ErrNoServers,
+    ErrTimeout,
+)
+from stan.aio.client import Client as STAN
+from stan.aio.errors import StanError
 
 logger = logging.getLogger("guillotina_nats")
 
@@ -24,8 +29,8 @@ class NatsUtility(object):
         self._stream_subscriptions = []
         self._stan = settings.get("stan", None)
         self._name = settings.get("name", None)
-        self._thread = settings.get('thread', False)
-        self._uuid = os.environ.get('HOSTNAME', uuid.uuid4().hex)
+        self._thread = settings.get("thread", False)
+        self._uuid = os.environ.get("HOSTNAME", uuid.uuid4().hex)
         self._initialized = False
         self.lock = asyncio.Lock()
         self.sc = None
@@ -70,27 +75,15 @@ class NatsUtility(object):
             raise ErrConnectionClosed("Could not publish")
 
     async def stream_publish(self, key, value):
-
         async def cb(ack):
             pass
 
         try:
-            await self.sc.publish(
-                key,
-                value,
-                ack_handler=cb,
-                ack_wait=60)
+            await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
         except AttributeError:
-            await self.sc.connect(
-                self._stan,
-                self._uuid,
-                nats=self.nc)
+            await self.sc.connect(self._stan, self._uuid, nats=self.nc)
             await asyncio.sleep(2)
-            await self.sc.publish(
-                key,
-                value,
-                ack_handler=cb,
-                ack_wait=60)
+            await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
 
     async def request(self, key, value, timeout=None):
         if timeout is None:

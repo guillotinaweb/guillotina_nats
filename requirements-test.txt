@@ -15,4 +15,5 @@ pytest-cov==2.10.0
 coverage>=4.0.3
 pytest-docker-fixtures>=1.3.9
 isort==4.3.21
+aiohttp
 mock
