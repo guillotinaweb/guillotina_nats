@@ -1,8 +1,9 @@
-# Guillotina Nats
+Guillotina Nats
+---------------
 
 Guillotina AddOn to connect to Nats and Stan in order to implement PubSub and Streaming strategies
 
-In order to configure:
+In order to configure::
 
     applications:
     - guillotina_nats
