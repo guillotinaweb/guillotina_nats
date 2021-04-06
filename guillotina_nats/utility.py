@@ -151,6 +151,8 @@ class NatsUtility(object):
                 await self.nc.flush()
             except RuntimeError:
                 pass
+            except AttributeError:
+                pass
             for key in self._subscriptions:
                 await self.nc.unsubscribe(key)
             try:
