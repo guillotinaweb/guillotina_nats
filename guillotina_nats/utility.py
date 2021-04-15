@@ -26,6 +26,9 @@ class NatsUtility(object):
         self._subscriptions = []
         self._stream_subscriptions = []
         self._stan = settings.get("stan", None)
+        self._stan_ping_interval = settings.get("stan_ping_interval", 5)
+        self._stan_ping_max_out = settings.get("stan_ping_max_out", 3)
+        self._stan_timeout = settings.get("stan_timeout", 2)
         self._name = settings.get("name", None)
         self._thread = settings.get("thread", False)
         self._uuid = os.environ.get("HOSTNAME", uuid.uuid4().hex)
@@ -132,7 +135,14 @@ class NatsUtility(object):
 
             if self._stan is not None:
                 self.sc = STAN()
-                await self.sc.connect(self._stan, self._uuid, nats=self.nc)
+                await self.sc.connect(
+                    self._stan,
+                    self._uuid,
+                    nats=self.nc,
+                    ping_interval=self._stan_ping_interval,
+                    ping_max_out=self._stan_ping_max_out,
+                    connect_timeout=self._stan_timeout,
+                )
                 logger.info("Connected to stan")
         self._initialized = True
 
