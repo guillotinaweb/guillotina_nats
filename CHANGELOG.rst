@@ -1,4 +1,4 @@
-1.0.2 (unreleased)
+1.0.2 (2021-04-15)
 ------------------
 
 - Adding connection options on STAN
