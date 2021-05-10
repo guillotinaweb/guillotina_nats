@@ -79,12 +79,13 @@ class NatsUtility(object):
         async def cb(ack):
             pass
 
-        try:
-            await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
-        except AttributeError:
-            await self.sc.connect(self._stan, self._uuid, nats=self.nc)
-            await asyncio.sleep(2)
-            await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
+        await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
+        # try:
+        #     await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
+        # except AttributeError:
+        #     await self.sc.connect(self._stan, self._uuid, nats=self.nc)
+        #     await asyncio.sleep(2)
+        #     await self.sc.publish(key, value, ack_handler=cb, ack_wait=60)
 
     async def request(self, key, value, timeout=None):
         if timeout is None:
