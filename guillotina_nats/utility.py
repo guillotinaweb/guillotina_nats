@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-from guillotina_nats.models import ConsumerConfig, StreamConfig
+from functools import partial
+from guillotina_nats.models import ConsumerConfig
+from guillotina_nats.models import StreamConfig
 from nats.aio.client import Client as NATS
+from nats.aio.client import INBOX_PREFIX
 from nats.aio.errors import ErrConnectionClosed
 from nats.aio.errors import ErrConnectionReconnecting
 from nats.aio.errors import ErrNoServers
 from nats.aio.errors import ErrTimeout
 from stan.aio.client import Client as STAN
 from stan.aio.errors import StanError
-from nats.aio.client import INBOX_PREFIX
 
-from functools import partial
 import asyncio
+import base64
+import json
 import logging
 import os
-import json
 import uuid
-import base64
 
 logger = logging.getLogger("guillotina_nats")
 
@@ -25,6 +26,7 @@ async def wait_for_it(future: asyncio.Future, msg):
 
 
 # Configuration Utility
+
 
 class NatsUtility(object):
     def __init__(self, settings, loop=None):
@@ -167,9 +169,9 @@ class NatsUtility(object):
                 return None
         return message
 
-
-
-    async def js_get_next(self, stream: str, consumer: str, timeout: int = 5000000000, batch: int = 1):
+    async def js_get_next(
+        self, stream: str, consumer: str, timeout: int = 5000000000, batch: int = 1
+    ):
         next_inbox = INBOX_PREFIX[:]
         next_inbox.extend(self.nc._nuid.next())
         inbox = next_inbox.decode()
@@ -183,12 +185,9 @@ class NatsUtility(object):
             await self.nc.publish_request(
                 f"$JS.API.CONSUMER.MSG.NEXT.{stream}.{consumer}",
                 inbox,
-                json.dumps({
-                    'expires': timeout,
-                    'batch': batch
-                }).encode()
+                json.dumps({"expires": timeout, "batch": batch}).encode(),
             )
-            msg = await asyncio.wait_for(future, timeout/1e+9, loop=self._loop)
+            msg = await asyncio.wait_for(future, timeout / 1e9, loop=self._loop)
         except asyncio.TimeoutError:
             raise ErrTimeout
         finally:
