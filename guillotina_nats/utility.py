@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from guillotina_nats.models import ConsumerConfig, StreamConfig
 from nats.aio.client import Client as NATS
 from nats.aio.errors import ErrConnectionClosed
 from nats.aio.errors import ErrConnectionReconnecting
@@ -6,17 +7,24 @@ from nats.aio.errors import ErrNoServers
 from nats.aio.errors import ErrTimeout
 from stan.aio.client import Client as STAN
 from stan.aio.errors import StanError
+from nats.aio.client import INBOX_PREFIX
 
+from functools import partial
 import asyncio
 import logging
 import os
+import json
 import uuid
+import base64
 
 logger = logging.getLogger("guillotina_nats")
 
 
-# Configuration Utility
+async def wait_for_it(future: asyncio.Future, msg):
+    future.set_result(msg)
 
+
+# Configuration Utility
 
 class NatsUtility(object):
     def __init__(self, settings, loop=None):
@@ -74,6 +82,124 @@ class NatsUtility(object):
             await self.nc.publish(key, value)
         else:
             raise ErrConnectionClosed("Could not publish")
+
+    # JETSTREAM
+
+    def parse_response(self, message):
+        return json.loads(message.data)
+
+    async def js_info(self):
+        message = await self.request(f"$JS.API.INFO", b"")
+        return self.parse_response(message)
+
+    # JETSTREAM STREAMS
+
+    async def js_streams(self):
+        message = await self.request(f"$JS.API.STREAM.LIST", b"")
+        return self.parse_response(message)
+
+    async def js_stream(self, stream):
+        message = await self.request(f"$JS.API.STREAM.INFO.{stream}", b"")
+        return self.parse_response(message)
+
+    async def js_stream_create(self, streamconfig: StreamConfig):
+        message = await self.request(
+            f"$JS.API.STREAM.CREATE.{streamconfig.name}", streamconfig.json().encode()
+        )
+        return self.parse_response(message)
+
+    async def js_stream_update(self, streamconfig: StreamConfig):
+        message = await self.request(
+            f"$JS.API.STREAM.UPDATE.{streamconfig.name}", streamconfig.json().encode()
+        )
+        return self.parse_response(message)
+
+    async def js_stream_delete(self, stream: str):
+        message = await self.request(f"$JS.API.STREAM.DELETE.{stream}", b"")
+        return self.parse_response(message)
+
+    async def js_stream_purge(self, stream: str):
+        message = await self.request(f"$JS.API.STREAM.PURGE.{stream}", b"")
+        return self.parse_response(message)
+
+    # JETSTREAM CONSUMER
+
+    async def js_consumer_ephemeral_create(self, stream: str, consumer: ConsumerConfig):
+        message = await self.request(
+            f"$JS.API.CONSUMER.CREATE.{stream}", consumer.json().encode()
+        )
+        return self.parse_response(message)
+
+    async def js_consumer_durable_create(
+        self, stream: str, consumerconfig: ConsumerConfig
+    ):
+        message = await self.request(
+            f"$JS.API.CONSUMER.DURABLE.CREATE.{stream}.{consumerconfig.durable_name}",
+            json.dumps(
+                {"stream_name": stream, "config": consumerconfig.dict()}
+            ).encode(),
+        )
+        return self.parse_response(message)
+
+    async def js_consumer_list(self, stream: str):
+        message = await self.request(f"$JS.API.CONSUMER.LIST.{stream}", b"")
+        return self.parse_response(message)
+
+    async def js_consumer_delete(self, stream: str, consumer: str):
+        message = await self.request(
+            f"$JS.API.CONSUMER.DELETE.{stream}.{consumer}", b""
+        )
+        return self.parse_response(message)
+
+    async def js_consumer_info(self, stream: str, consumer: str):
+        message = await self.request(f"$JS.API.CONSUMER.INFO.{stream}.{consumer}", b"")
+        return self.parse_response(message)
+
+    async def js_get_message(self, stream: str, number: int):
+        message = await self.request(
+            f"$JS.API.STREAM.MSG.GET.{stream}", json.dumps({"seq": number}).encode()
+        )
+        if message:
+            message = self.parse_response(message)
+            if "error" not in message:
+                message = base64.b64decode(message["message"]["data"])
+            elif message["error"]["code"] == 404:
+                return None
+        return message
+
+
+
+    async def js_get_next(self, stream: str, consumer: str, timeout: int = 5000000000, batch: int = 1):
+        next_inbox = INBOX_PREFIX[:]
+        next_inbox.extend(self.nc._nuid.next())
+        inbox = next_inbox.decode()
+
+        future = asyncio.Future(loop=self._loop)
+        cb = partial(wait_for_it, future)
+
+        sid = await self.nc.subscribe(inbox, cb=cb)
+        msg = None
+        try:
+            await self.nc.publish_request(
+                f"$JS.API.CONSUMER.MSG.NEXT.{stream}.{consumer}",
+                inbox,
+                json.dumps({
+                    'expires': timeout,
+                    'batch': batch
+                }).encode()
+            )
+            msg = await asyncio.wait_for(future, timeout/1e+9, loop=self._loop)
+        except asyncio.TimeoutError:
+            raise ErrTimeout
+        finally:
+            self.nc.unsubscribe(sid)
+
+        return msg
+
+    async def js_consumer_ack(self, reply: str):
+        return await self.request(reply, b"")
+
+    # STAN
 
     async def stream_publish(self, key, value):
         async def cb(ack):

@@ -31,7 +31,7 @@ testing.configure_with(base_settings_configurator)
 @pytest.fixture(scope="function")
 def natsd():
     if not os.path.isfile("nats-server"):
-        version = "v2.0.0"
+        version = "v2.2.4"
         arch = platform.machine()
         if arch == "x86_64":
             arch = "amd64"

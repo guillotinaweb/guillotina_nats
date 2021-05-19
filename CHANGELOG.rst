@@ -1,7 +1,7 @@
 1.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Adding support for jetstream (alpha)
 
 
 1.0.2 (2021-04-15)

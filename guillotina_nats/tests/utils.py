@@ -43,6 +43,7 @@ class Gnatsd(object):
     def start(self):
         cmd = [
             f"{self.path}/{self.bin_name}",
+            "-js",
             "-p",
             "%d" % self.port,
             "-m",
