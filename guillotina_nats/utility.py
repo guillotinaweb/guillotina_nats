@@ -176,7 +176,7 @@ class NatsUtility(object):
         next_inbox.extend(self.nc._nuid.next())
         inbox = next_inbox.decode()
 
-        future = asyncio.Future(loop=self._loop)
+        future: asyncio.Future = asyncio.Future(loop=self._loop)
         cb = partial(wait_for_it, future)
 
         sid = await self.nc.subscribe(inbox, cb=cb)

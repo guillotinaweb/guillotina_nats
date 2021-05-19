@@ -1,6 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
 from typing import List
+from typing import Optional
 
 
 class RetentionPolicy(str, Enum):
@@ -50,18 +51,18 @@ class ReplayPolicy(str, Enum):
 
 class ConsumerConfig(BaseModel):
     ack_policy: AckPolicy = AckPolicy.explicit
-    ack_wait: int = None
+    ack_wait: Optional[int] = None
     deliver_policy: DeliverPolicy = DeliverPolicy.all
-    deliver_subject: str = None
-    durable_name: str = None
-    filter_subject: str = None
-    flow_control: bool = None
-    idle_heartbeat: int = None
-    max_ack_pending: int = None
-    max_deliver: int = None
-    max_waiting: int = None
-    opt_start_seq: int = None
-    opt_start_time: int = None
-    rate_limit_bps: int = None
+    deliver_subject: Optional[str] = None
+    durable_name: Optional[str] = None
+    filter_subject: Optional[str] = None
+    flow_control: Optional[bool] = None
+    idle_heartbeat: Optional[int] = None
+    max_ack_pending: Optional[int] = None
+    max_deliver: Optional[int] = None
+    max_waiting: Optional[int] = None
+    opt_start_seq: Optional[int] = None
+    opt_start_time: Optional[int] = None
+    rate_limit_bps: Optional[int] = None
     replay_policy: ReplayPolicy = ReplayPolicy.instant
-    sample_freq: str = None
+    sample_freq: Optional[str] = None

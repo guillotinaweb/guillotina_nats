@@ -157,7 +157,7 @@ def start_gnatsd(gnatsd: Gnatsd):
             httpclient = http.client.HTTPConnection(endpoint, timeout=5)
             httpclient.request("GET", "/varz")
             response = httpclient.getresponse()
-            if response.code == 200:
+            if response.status == 200:
                 break
         except:
             retries += 1
@@ -291,7 +291,7 @@ def start_nats_streaming(server: StanServer):
             httpclient = http.client.HTTPConnection(endpoint, timeout=5)
             httpclient.request("GET", "/subsz")
             response = httpclient.getresponse()
-            if response.code == 200:
+            if response.status == 200:
                 # Check that at least the minimum subjects for a
                 # NATS Streaming session are ready.
                 connz = json.loads(response.read())
