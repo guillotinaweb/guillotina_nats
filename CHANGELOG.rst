@@ -1,4 +1,4 @@
-1.0.3 (unreleased)
+1.0.3 (2021-05-19)
 ------------------
 
 - Adding support for jetstream (alpha)
