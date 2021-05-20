@@ -191,7 +191,7 @@ class NatsUtility(object):
         except asyncio.TimeoutError:
             raise ErrTimeout
         finally:
-            self.nc.unsubscribe(sid)
+            await self.nc.unsubscribe(sid)
 
         return msg
 
