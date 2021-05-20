@@ -1,7 +1,7 @@
 1.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix missing corouting on jetstream
 
 
 1.0.3 (2021-05-19)
