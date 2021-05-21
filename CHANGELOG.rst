@@ -1,7 +1,7 @@
 1.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Loop argument deprecated on 3.8
 
 
 1.0.4 (2021-05-20)

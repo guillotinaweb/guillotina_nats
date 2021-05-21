@@ -187,7 +187,7 @@ class NatsUtility(object):
                 inbox,
                 json.dumps({"expires": timeout, "batch": batch}).encode(),
             )
-            msg = await asyncio.wait_for(future, timeout / 1e9, loop=self._loop)
+            msg = await asyncio.wait_for(future, timeout / 1e9)
         except asyncio.TimeoutError:
             raise ErrTimeout
         finally:
